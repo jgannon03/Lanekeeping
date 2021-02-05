@@ -1,0 +1,82 @@
+from scipy.integrate import solve_ivp
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+class Car:
+    def __init__(self, length=2.3, velocity=5., x=0., y=0., theta=0.):
+        self.__length = length
+        self.__velocity = velocity
+        self.__x = x
+        self.__y = y
+        self.__theta = theta
+
+    def move(self, steering_angle, dt):
+        z_initial = [self.__x, self.__y, self.__theta]
+
+        def system_dynamics(t, z):
+            theta = z[2]
+            return [self.__velocity * np.cos(theta),
+                    self.__velocity * np.sin(theta),
+                    self.__velocity * np.tan(steering_angle) / self.__length]
+
+        solution = solve_ivp(system_dynamics,
+                             [0, dt],
+                             z_initial,
+                             t_eval=np.linspace(0, dt, 1000))
+        self.__x = solution.y[0][-1]
+        self.__y = solution.y[1][-1]
+        self.__theta = solution.y[2][-1]
+        return solution
+
+    def x(self):
+        return self.__x
+
+    def y(self):
+        return self.__y
+
+    def theta(self):
+        return self.__theta
+
+    def length(self):
+        return self.__length
+
+
+t_sampling = 0.025  # 25ms
+t_final = 2
+car_steering_angle = np.deg2rad(-2)
+murphy = Car(x=0, y=0.3, theta=np.deg2rad(5))
+
+car_trajectory = murphy.move(car_steering_angle, t_final)
+
+# x / time
+plt.plot(car_trajectory.t, car_trajectory.y[0].T)
+plt.xlabel('Time (s)')
+plt.ylabel('x (m)')
+plt.grid()
+plt.savefig('Graph of x against time.svg') #svg
+plt.show()
+
+# y / time 
+plt.plot(car_trajectory.t, car_trajectory.y[1].T)
+plt.xlabel('Time (s)')
+plt.ylabel('y (m)')
+plt.grid()
+plt.savefig('Graph of y against time.svg') #svg
+plt.show()
+
+# theta / time 1.1
+plt.plot(car_trajectory.t, car_trajectory.y[2].T)
+plt.xlabel('Time (s)')
+plt.ylabel('theta (rad)')
+plt.grid()
+plt.savefig('Graph of theta against time.svg') #svg
+plt.show()
+
+# y / x  1.2 
+plt.plot(car_trajectory.y[0], car_trajectory.y[1].T)
+plt.xlabel('x (m)')
+plt.ylabel('y (m)')
+plt.grid()
+plt.savefig('Graph of y against x.svg') #svg (VECTOR FORMAT)
+plt.show()
