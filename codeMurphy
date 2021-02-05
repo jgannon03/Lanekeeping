@@ -1,0 +1,67 @@
+from scipy.integrate import solve_ivp
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+class Car:
+
+    def __init__(self, length=2.3, velocity=5, x=0, y=0, theta=0):
+        self.length = length
+        self.velocity = velocity
+        self.x = x
+        self.y = y
+        self.theta = theta
+
+    def move(self, steering_angle, dt):
+        z_initial = [self.x, self.y, self.theta]
+
+        def system_dynamics(t, z):
+            theta = z[2]
+            return [self.velocity * np.cos(theta),
+                    self.velocity * np.sin(theta),
+                    self.velocity * np.tan(steering_angle) / self.length]
+
+        solution = solve_ivp(system_dynamics,
+                             [0, dt],
+                             z_initial)
+        self.__x = solution.y[0][-1]
+        self.__y = solution.y[1][-1]
+        self.__theta = solution.y[2][-1]
+
+def x(self):
+    return self.__x
+
+def y(self):
+    return self.__y
+
+def theta(self):
+    return self.__theta
+
+def length(self):
+    return self.__length
+
+class PIDController:
+
+    def __init__(self, kp, ki, kd, ts):
+“”” constructor for the PID Controller
+
+:param kp: proportional gain
+:param ki: derivative gain
+:param kd: integral gain
+:param ts: sampling time
+      “””
+        self.__kp = kp
+        self.__ki = ki * ts
+        self.__kd = kd / ts
+        self.__ts = ts
+        #self.previous_error = None
+
+    
+def control(self, y, y_set_point=0):
+        error = y_set_point - y
+        control_action = self.__kp * error
+        return control_action
+
+---------------------------------------------------------------
+pid = PIDController(kp=0.5, ki=0.001, kd=0.1, ts=0.005)
+murphy = Car()
